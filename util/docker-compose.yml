@@ -16,11 +16,14 @@ services:
     ports:
       - '3000:3000'
   renderer:
-    image: grafana/grafana-image-renderer:v3.3.0
+    image: grafana/grafana-image-renderer:3.3.0
     ports:
       - 8081
   reporter:
-    image: grafana-reporter:0.1
+    image: grafana-reporter:0.2
     command: "-ip grafana:3000"
+    environment:
+      MAX_WORKERS: 5
     ports:
       - "8686:8686"
+#http://localhost:8686/api/v5/report/oohJ9Axnz
