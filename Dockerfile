@@ -8,18 +8,17 @@ RUN make build
 # create image
 FROM alpine:3.12
 COPY util/texlive.profile /
+COPY util/install-unx.sh .
 
-RUN PACKAGES="wget libswitch-perl" \
+RUN PACKAGES="wget perl-switch fontconfig fontconfig-dev" \
         && apk update \
         && apk add $PACKAGES \
-        && apk add ca-certificates \
-        && wget -qO- \
-          "https://github.com/yihui/tinytex/raw/master/tools/install-unx.sh" | \
-          sh -s - --admin --no-path \
-        && mv ~/.TinyTeX /opt/TinyTeX \
-        && /opt/TinyTeX/bin/*/tlmgr path add \
-        && tlmgr path add \
-        && chown -R root:adm /opt/TinyTeX \
+        && apk add ca-certificates 
+RUN     ./install-unx.sh \
+        && mv /root/.TinyTeX /opt/TinyTeX \
+        && /opt/TinyTeX/bin/x86_64-linuxmusl/tlmgr path add
+ENV     PATH=/opt/TinyTeX/bin/x86_64-linuxmusl:$PATH
+RUN     chown -R root:adm /opt/TinyTeX \
         && chmod -R g+w /opt/TinyTeX \
         && chmod -R g+wx /opt/TinyTeX/bin \
         && tlmgr install epstopdf-pkg \
@@ -31,3 +30,4 @@ RUN PACKAGES="wget libswitch-perl" \
 
 COPY --from=build /go/bin/grafana-reporter /usr/local/bin
 ENTRYPOINT [ "/usr/local/bin/grafana-reporter" ]
+# x86_64-linuxmusl
